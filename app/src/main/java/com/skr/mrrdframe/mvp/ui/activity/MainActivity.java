@@ -15,8 +15,6 @@ import android.widget.AbsListView;
 import com.skr.mrrdframe.R;
 import com.skr.mrrdframe.mvp.entity.DirectoryFile;
 import com.skr.mrrdframe.mvp.ui.adapter.DirectoryListAdapter;
-import com.skr.mrrdframe.repository.network.ApiConstants;
-import com.skr.mrrdframe.server.FileServer;
 import com.socks.library.KLog;
 
 import java.io.File;
@@ -33,7 +31,6 @@ import hugo.weaving.DebugLog;
 public class MainActivity extends AppCompatActivity {
     public static final String LOG_TAG = "MainActivity";
     private final static String[] EXTENSIONS = {".png", ".jpg", ".mp3", ".mp4", ".avi", ".doc", ".pdf", ".txt", ".apk"};
-    private FileServer fileServer = new FileServer(ApiConstants.PORT);
 
     public static boolean sIsScrolling;
 
@@ -53,8 +50,6 @@ public class MainActivity extends AppCompatActivity {
                 .setAction("Action", null).show());
 
         initRecycleView();
-
-        startServer();
 
         getSdPaths();
     }
@@ -101,16 +96,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void startServer() {
-        new Thread(() -> {
-            try {
-                fileServer.start();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
-
     private List<DirectoryFile> getStorageList() {
         List<DirectoryFile> list = new ArrayList<>();
         String sDStateString = Environment.getExternalStorageState();
@@ -121,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                 File[] files = sdPath.listFiles();
                 if (sdPath.listFiles().length > 0) {
                     for (File file : files) {
-                        if (!file.isDirectory() && /*file.getName().endsWith(".apk")*/isNeededFile(file)) {
+                        if (!file.isDirectory() && isNeededFile(file)) {
                             DirectoryFile directoryFile = new DirectoryFile();
                             directoryFile.setName(file.getName());
                             directoryFile.setPath(file.getAbsolutePath());
