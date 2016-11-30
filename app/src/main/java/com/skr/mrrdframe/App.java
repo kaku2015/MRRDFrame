@@ -26,7 +26,7 @@ public class App extends Application {
 
     private static Context sAppContext;
 
-    private  ApplicationComponent mApplicationComponent;
+    private static ApplicationComponent mApplicationComponent;
     private RefWatcher refWatcher;
 
     public static RefWatcher getRefWatcher(Context context) {
@@ -130,7 +130,7 @@ public class App extends Application {
     }
 
 
-    public ApplicationComponent getApplicationComponent() {
+    public static ApplicationComponent getApplicationComponent() {
         return mApplicationComponent;
     }
 }

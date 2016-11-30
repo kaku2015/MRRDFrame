@@ -12,7 +12,7 @@ import com.skr.mrrdframe.base.BasePresenter;
 import com.skr.mrrdframe.di.component.DaggerFragmentComponent;
 import com.skr.mrrdframe.di.component.FragmentComponent;
 import com.skr.mrrdframe.di.module.FragmentModule;
-import com.skr.mrrdframe.utils.Utils;
+import com.skr.mrrdframe.utils.MyUtils;
 import com.squareup.leakcanary.RefWatcher;
 
 import butterknife.ButterKnife;
@@ -45,7 +45,7 @@ public abstract class BaseFragment<T extends BasePresenter> extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mFragmentComponent = DaggerFragmentComponent.builder()
-                .applicationComponent(((App) getActivity().getApplication()).getApplicationComponent())
+                .applicationComponent(App.getApplicationComponent())
                 .fragmentModule(new FragmentModule(this))
                 .build();
         initInjector();
@@ -72,6 +72,6 @@ public abstract class BaseFragment<T extends BasePresenter> extends Fragment {
             mPresenter.onDestroy();
         }
 
-        Utils.cancelSubscription(mSubscription);
+        MyUtils.cancelSubscription(mSubscription);
     }
 }

@@ -3,7 +3,7 @@ package com.skr.mrrdframe.base;
 import android.support.annotation.NonNull;
 
 import com.skr.mrrdframe.listener.RequestCallBack;
-import com.skr.mrrdframe.utils.Utils;
+import com.skr.mrrdframe.utils.MyUtils;
 
 import rx.Subscription;
 
@@ -23,7 +23,7 @@ public class BasePresenterImpl<T extends BaseView, E> implements BasePresenter, 
 
     @Override
     public void onDestroy() {
-        Utils.cancelSubscription(mSubscription);
+        MyUtils.cancelSubscription(mSubscription);
     }
 
     @Override

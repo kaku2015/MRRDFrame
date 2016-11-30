@@ -6,6 +6,7 @@ import android.content.Context;
 import com.skr.mrrdframe.di.module.ActivityModule;
 import com.skr.mrrdframe.di.scope.ContextLife;
 import com.skr.mrrdframe.di.scope.PerActivity;
+import com.skr.mrrdframe.mvp.ui.activity.MainActivity;
 
 import dagger.Component;
 
@@ -26,4 +27,5 @@ public interface ActivityComponent {
     Activity getActivity();
 
 //    void inject(SomeActivity someActivity);
+    void inject(MainActivity mainActivity);
 }

@@ -9,7 +9,7 @@ import com.skr.mrrdframe.R;
 import com.skr.mrrdframe.di.component.ActivityComponent;
 import com.skr.mrrdframe.di.component.DaggerActivityComponent;
 import com.skr.mrrdframe.di.module.ActivityModule;
-import com.skr.mrrdframe.utils.Utils;
+import com.skr.mrrdframe.utils.MyUtils;
 import com.socks.library.KLog;
 import com.squareup.leakcanary.RefWatcher;
 
@@ -31,7 +31,18 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
 
     public abstract int getLayoutId();
 
+    /**
+     * Use case:
+     * mActivityComponent.inject(this);
+     */
     public abstract void initInjector();
+
+    /**
+     * Use case:
+     * mPresenter = xxxPresenter;
+     * mPresenter.attachView(this);
+     */
+    public abstract void initPresenter();
 
     public abstract void initViews();
 
@@ -46,6 +57,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
         initInjector();
         ButterKnife.bind(this);
         initToolBar();
+        initPresenter();
         initViews();
         if (mPresenter != null) {
             mPresenter.onCreate();
@@ -54,7 +66,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
 
     private void initActivityComponent() {
         mActivityComponent = DaggerActivityComponent.builder()
-                .applicationComponent(((App) getApplication()).getApplicationComponent())
+                .applicationComponent(App.getApplicationComponent())
                 .activityModule(new ActivityModule(this))
                 .build();
     }
@@ -74,7 +86,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
             mPresenter.onDestroy();
         }
 
-        Utils.cancelSubscription(mSubscription);
-        Utils.fixInputMethodManagerLeak(this);
+        MyUtils.cancelSubscription(mSubscription);
+        MyUtils.fixInputMethodManagerLeak(this);
     }
 }

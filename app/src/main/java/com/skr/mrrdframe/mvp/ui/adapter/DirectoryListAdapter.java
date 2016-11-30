@@ -3,7 +3,6 @@ package com.skr.mrrdframe.mvp.ui.adapter;
 
 import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,7 @@ import com.skr.mrrdframe.R;
 import com.skr.mrrdframe.base.BaseRecyclerViewAdapter;
 import com.skr.mrrdframe.mvp.entity.DirectoryFile;
 
-import java.util.List;
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,14 +24,12 @@ import butterknife.ButterKnife;
 public class DirectoryListAdapter extends BaseRecyclerViewAdapter<DirectoryFile> {
     private static final String LOG_TAG = "DirectoryListAdapter";
 
-    private static SparseBooleanArray mPaths = new SparseBooleanArray();
+    @Inject
+    Activity mContext;
 
-    private Activity mContext;
-
-    public DirectoryListAdapter(List<DirectoryFile> list, Activity context) {
-        super(list);
-        mContext = context;
-
+    @Inject
+    DirectoryListAdapter() {
+        super(null);
     }
 
     @Override
@@ -44,9 +41,9 @@ public class DirectoryListAdapter extends BaseRecyclerViewAdapter<DirectoryFile>
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         super.onBindViewHolder(holder, position);
-        final DirectoryFile item = mData.get(position);
+        DirectoryFile item = mData.get(position);
 
-        final DirectoryListViewHolder viewHolder = (DirectoryListViewHolder) holder;
+        DirectoryListViewHolder viewHolder = (DirectoryListViewHolder) holder;
         viewHolder.mFileNameTv.setText(item.getName());
     }
 
