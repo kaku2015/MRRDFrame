@@ -12,6 +12,7 @@ import com.skr.mrrdframe.mvp.entity.DirectoryFile;
 import com.skr.mrrdframe.mvp.presenter.impl.DirectoryFilePresenterImpl;
 import com.skr.mrrdframe.mvp.ui.adapter.DirectoryListAdapter;
 import com.skr.mrrdframe.mvp.ui.view.IDirectoryFileView;
+import com.skr.mrrdframe.widgets.DividerItemDecoration;
 
 import java.util.List;
 
@@ -64,6 +65,8 @@ public class MainActivity extends BaseActivity implements IDirectoryFileView {
 
     private void initRecycleView() {
         mDirectoryListRv.setHasFixedSize(true);
+        mDirectoryListRv.addItemDecoration(new DividerItemDecoration(this,
+                DividerItemDecoration.VERTICAL_LIST));
         mDirectoryListRv.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false));
         mDirectoryListRv.setAdapter(mDirectoryListAdapter);
