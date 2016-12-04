@@ -8,11 +8,16 @@ import android.support.v7.widget.RecyclerView;
 
 import com.skr.mrrdframe.R;
 import com.skr.mrrdframe.base.BaseActivity;
+import com.skr.mrrdframe.listener.HttpDataListener;
 import com.skr.mrrdframe.mvp.entity.DirectoryFile;
 import com.skr.mrrdframe.mvp.presenter.impl.DirectoryFilePresenterImpl;
 import com.skr.mrrdframe.mvp.ui.adapter.DirectoryListAdapter;
 import com.skr.mrrdframe.mvp.ui.view.IDirectoryFileView;
+import com.skr.mrrdframe.repository.network.HttpManager;
+import com.skr.mrrdframe.repository.network.RetrofitManager;
+import com.skr.mrrdframe.repository.network.entity.Express;
 import com.skr.mrrdframe.widgets.DividerItemDecoration;
+import com.socks.library.KLog;
 
 import java.util.List;
 
@@ -52,10 +57,28 @@ public class MainActivity extends BaseActivity implements IDirectoryFileView {
 
     @Override
     public void initViews() {
-        mFabBtn.setOnClickListener(view -> Snackbar.make(view, "hello MRRDFrame!", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
+        mFabBtn.setOnClickListener(view -> {
+            Snackbar.make(view, "hello MRRDFrame!", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+            doHttpRequest();
+
+        });
 
         initRecycleView();
+    }
+
+    private void doHttpRequest() {
+        HttpManager.getInstance()
+                .with(this)
+                .setObservable(RetrofitManager.getService().getExpress("yuantong", "200382770316"))
+                .setDataListener(new HttpDataListener<List<Express>>() {
+                    @Override
+                    public void onNext(List<Express> list) {
+                        for (int i = 0; i < list.size(); i++) {
+                            KLog.d(list.get(i).toString());
+                        }
+                    }
+                });
     }
 
     @Override
