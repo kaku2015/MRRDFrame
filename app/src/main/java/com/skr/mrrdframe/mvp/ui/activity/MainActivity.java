@@ -13,8 +13,9 @@ import com.skr.mrrdframe.mvp.entity.DirectoryFile;
 import com.skr.mrrdframe.mvp.presenter.impl.DirectoryFilePresenterImpl;
 import com.skr.mrrdframe.mvp.ui.adapter.DirectoryListAdapter;
 import com.skr.mrrdframe.mvp.ui.view.IDirectoryFileView;
+import com.skr.mrrdframe.repository.network.HostType;
 import com.skr.mrrdframe.repository.network.HttpManager;
-import com.skr.mrrdframe.repository.network.RetrofitManager;
+import com.skr.mrrdframe.repository.network.RetrofitManager2;
 import com.skr.mrrdframe.repository.network.entity.Express;
 import com.skr.mrrdframe.widgets.DividerItemDecoration;
 import com.socks.library.KLog;
@@ -70,7 +71,7 @@ public class MainActivity extends BaseActivity implements IDirectoryFileView {
     private void doHttpRequest() {
         HttpManager.getInstance()
                 .with(this)
-                .setObservable(RetrofitManager.getService().getExpress("yuantong", "200382770316"))
+                .setObservable(RetrofitManager2.getService(HostType.RELEASE).getExpress("yuantong", "200382770316"))
                 .setDataListener(new HttpDataListener<List<Express>>() {
                     @Override
                     public void onNext(List<Express> list) {

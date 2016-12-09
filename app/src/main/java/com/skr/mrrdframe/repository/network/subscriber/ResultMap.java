@@ -16,6 +16,8 @@
  */
 package com.skr.mrrdframe.repository.network.subscriber;
 
+import com.skr.mrrdframe.repository.network.entity.ResultModel;
+
 import rx.functions.Func1;
 
 /**

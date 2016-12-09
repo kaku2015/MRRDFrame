@@ -16,6 +16,7 @@
  */
 package com.skr.mrrdframe.repository.network;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 
@@ -34,66 +35,68 @@ import rx.schedulers.Schedulers;
  * @since 2016/12/4
  */
 public class HttpManager {
-    private volatile static HttpManager singleton;
-    private WeakReference<Context> context;
-    private Observable observable;
-    private HttpSubscriber subscriber;
-    private boolean showProgress = true;
+    @SuppressLint("StaticFieldLeak")
+    private volatile static HttpManager sHttpManager;
+    private Context mContext;
+    private Observable mObservable;
+    private HttpSubscriber mSubscriber;
+    private boolean mIsShowProgressDialog = true;
 
     private HttpManager() {
 
     }
 
     public static HttpManager getInstance() {
-        if (singleton == null) {
+        if (sHttpManager == null) {
             synchronized (HttpManager.class) {
-                if (singleton == null) {
-                    singleton = new HttpManager();
+                if (sHttpManager == null) {
+                    sHttpManager = new HttpManager();
                 }
             }
         }
-        return singleton;
+        return sHttpManager;
     }
 
     public HttpManager with(Context context) {
-        this.context = new WeakReference<>(context);
-        return singleton;
+        WeakReference<Context> weakReference = new WeakReference<>(context);
+        mContext = weakReference.get();
+        return sHttpManager;
     }
 
     public HttpManager setObservable(Observable observable) {
-        this.observable = observable.subscribeOn(Schedulers.io())
+        this.mObservable = observable.subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(new ResultMap());
-        return singleton;
+        return sHttpManager;
     }
 
     //是否显示ProgressDialog
-    public HttpManager showProgress(boolean showProgress) {
-        this.showProgress = showProgress;
-        return singleton;
+    public HttpManager isShowProgressDialog(boolean isShowProgressDialog) {
+        this.mIsShowProgressDialog = isShowProgressDialog;
+        return sHttpManager;
     }
 
     //创建subscriber
     public void setDataListener(HttpDataListener listener) {
-        subscriber = new HttpSubscriber(listener, context.get());
-        observable.subscribe(subscriber);
+        mSubscriber = new HttpSubscriber(listener, mContext);
+        mObservable.subscribe(mSubscriber);
     }
 
     //创建subscriber 自定义ProgressDialog的文字
     public void setDataListener(HttpDataListener listener, String message) {
-        observable.subscribe(new HttpSubscriber(listener, context.get(), message));
+        mObservable.subscribe(new HttpSubscriber(listener, mContext, message));
     }
 
     //创建subscriber 自定义ProgressDialog
     public void setDataListener(HttpDataListener listener, ProgressDialog dialog) {
-        observable.subscribe(new HttpSubscriber(listener, context.get(), dialog));
+        mObservable.subscribe(new HttpSubscriber(listener, mContext, dialog));
     }
 
 
     //取消请求
     public void cancelRequest() {
-        subscriber.cancelRequest();
+        mSubscriber.cancelRequest();
     }
 
 }

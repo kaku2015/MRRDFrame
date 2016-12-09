@@ -26,6 +26,7 @@ public class BasePresenterImpl<T extends BaseView, E> implements BasePresenter, 
         MyUtils.cancelSubscription(mSubscription);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void attachView(@NonNull BaseView view) {
         mView = (T) view;

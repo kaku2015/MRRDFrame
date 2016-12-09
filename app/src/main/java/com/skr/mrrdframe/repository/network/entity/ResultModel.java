@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package com.skr.mrrdframe.repository.network.subscriber;
+package com.skr.mrrdframe.repository.network.entity;
 
 /**
  * @author 咖枯

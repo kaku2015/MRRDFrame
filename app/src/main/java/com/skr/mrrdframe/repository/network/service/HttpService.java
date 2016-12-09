@@ -17,7 +17,7 @@
 package com.skr.mrrdframe.repository.network.service;
 
 import com.skr.mrrdframe.repository.network.entity.Express;
-import com.skr.mrrdframe.repository.network.subscriber.ResultModel;
+import com.skr.mrrdframe.repository.network.entity.ResultModel;
 
 import java.util.List;
 
