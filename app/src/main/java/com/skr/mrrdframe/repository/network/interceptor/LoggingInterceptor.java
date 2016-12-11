@@ -24,29 +24,17 @@ public class LoggingInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
 
-        Request.Builder requestBuilder = request.newBuilder();
-        requestBuilder.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36");
-        request = requestBuilder.build();
+//        Request.Builder requestBuilder = request.newBuilder();
+//        requestBuilder.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36");
+//        request = requestBuilder.build();
 
         long t1 = System.nanoTime(); // 毫微秒
         final Response response = chain.proceed(request);
         long t2 = System.nanoTime();
         String time = (t2 - t1) / 1e6d + " ms";
 
-        KLog.i(getHeadInfo(request, response, time));
-
-        final ResponseBody responseBody = response.body();
-        final long contentLength = responseBody.contentLength();
-
-        Buffer buffer = getBuffer(responseBody);
-        Charset charset = getCharset(responseBody);
-
-        if (contentLength != 0) {
-            KLog.i("--------------------------------------------开始打印返回数据----------------------------------------------------");
-            KLog.json(buffer.clone().readString(charset));
-            KLog.i("--------------------------------------------结束打印返回数据----------------------------------------------------");
-        }
-
+        printHttpInfo(request, response, time);
+        printReturnJsonData(response);
         return response;
     }
 
@@ -65,18 +53,31 @@ public class LoggingInterceptor implements Interceptor {
         return charset;
     }
 
-    private String getHeadInfo(Request request, Response response, String time) {
-//        String userId = request.url().queryParameter("userId"); //本项目log特定参数用户id
-        return ("\nrequest type：" + request.method()) +
-                "\nrequest address: " +
+    private void printHttpInfo(Request request, Response response, String time) {
+//        String userId = request.url().queryParameter("userId"); //项目特定参数用户id
+        String info = ("\nRequest type：" + request.method()) +
+                "\nRequest address: " +
                 request.url() +
-                "\nrequest headers：" +
+                "\nRequest headers：\n" +
                 request.headers() +
-                "\nresponse headers：" +
+                "\nResponse headers：\n" +
                 response.headers() +
-                "\nreturn code: " +
+                "\nReturn code: " +
                 response.code() +
-                "\nused time：" +
+                "\nUsed time：" +
                 time;
+        KLog.i(info);
+    }
+
+    private void printReturnJsonData(Response response) throws IOException {
+        final ResponseBody responseBody = response.body();
+        final long contentLength = responseBody.contentLength();
+        Buffer buffer = getBuffer(responseBody);
+        Charset charset = getCharset(responseBody);
+        if (contentLength != 0) {
+            KLog.i("--------------------------------------------开始打印返回数据----------------------------------------------------");
+            KLog.json(buffer.clone().readString(charset));
+            KLog.i("--------------------------------------------结束打印返回数据----------------------------------------------------");
+        }
     }
 }

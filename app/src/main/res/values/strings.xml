@@ -7,4 +7,6 @@
     <string name="error_server">服务器异常</string>
     <string name="error_socket_timeout">请求超时</string>
     <string name="error_network_interrupt">网络中断，请检查您的网络状态</string>
+
+    <string name="loading">加载中…</string>
 </resources>

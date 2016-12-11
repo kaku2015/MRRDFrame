@@ -8,15 +8,14 @@ import android.support.v7.widget.RecyclerView;
 
 import com.skr.mrrdframe.R;
 import com.skr.mrrdframe.base.BaseActivity;
-import com.skr.mrrdframe.listener.HttpDataListener;
 import com.skr.mrrdframe.mvp.entity.DirectoryFile;
 import com.skr.mrrdframe.mvp.presenter.impl.DirectoryFilePresenterImpl;
 import com.skr.mrrdframe.mvp.ui.adapter.DirectoryListAdapter;
 import com.skr.mrrdframe.mvp.ui.view.IDirectoryFileView;
-import com.skr.mrrdframe.repository.network.HostType;
-import com.skr.mrrdframe.repository.network.HttpManager;
-import com.skr.mrrdframe.repository.network.RetrofitManager2;
+import com.skr.mrrdframe.repository.network.RetrofitManager;
+import com.skr.mrrdframe.repository.network.RtHttp;
 import com.skr.mrrdframe.repository.network.entity.Express;
+import com.skr.mrrdframe.repository.network.subscriber.ApiSubscriber;
 import com.skr.mrrdframe.widgets.DividerItemDecoration;
 import com.socks.library.KLog;
 
@@ -69,10 +68,10 @@ public class MainActivity extends BaseActivity implements IDirectoryFileView {
     }
 
     private void doHttpRequest() {
-        HttpManager.getInstance()
+        RtHttp.getInstance()
                 .with(this)
-                .setObservable(RetrofitManager2.getService(HostType.RELEASE).getExpress("yuantong", "200382770316"))
-                .setDataListener(new HttpDataListener<List<Express>>() {
+                .setObservable(RetrofitManager.getHttpApi().getExpress("yuantong", "200382770316"))
+                .subscriber(new ApiSubscriber<List<Express>>() {
                     @Override
                     public void onNext(List<Express> list) {
                         for (int i = 0; i < list.size(); i++) {
@@ -80,6 +79,15 @@ public class MainActivity extends BaseActivity implements IDirectoryFileView {
                         }
                     }
                 });
+/*
+                        (new HttpDataListener<List<Express>>() {
+                    @Override
+                    public void onNext(List<Express> list) {
+                        for (int i = 0; i < list.size(); i++) {
+                            KLog.d(list.get(i).toString());
+                        }
+                    }
+                });*/
     }
 
     @Override

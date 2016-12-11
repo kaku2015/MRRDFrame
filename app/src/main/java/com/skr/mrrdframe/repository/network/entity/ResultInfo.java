@@ -20,9 +20,18 @@ package com.skr.mrrdframe.repository.network.entity;
  * @author 咖枯
  * @since 2016/12/4
  */
-public class ResultModel<T> {
+public class ResultInfo<T> {
+    private int code;
     private String status;//200成功
     private String message;
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
 
     public String getStatus() {
         return status;

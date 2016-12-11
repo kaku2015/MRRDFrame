@@ -18,23 +18,14 @@ package com.skr.mrrdframe.repository.network;
 
 import android.content.Context;
 
-import com.skr.mrrdframe.BuildConfig;
-import com.skr.mrrdframe.repository.network.interceptor.DynamicParameterInterceptor;
-import com.skr.mrrdframe.repository.network.interceptor.HeaderInterceptor;
-import com.skr.mrrdframe.repository.network.interceptor.ParameterInterceptor;
-import com.skr.mrrdframe.repository.network.service.NetworkApi;
+import com.skr.mrrdframe.App;
+import com.skr.mrrdframe.R;
 import com.skr.mrrdframe.repository.network.subscriber.ApiSubscriber;
-import com.skr.mrrdframe.repository.network.subscriber.HttpSubscriber;
+import com.skr.mrrdframe.repository.network.subscriber.ResultMap;
+import com.skr.mrrdframe.utils.TransformUtils;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Converter;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 
 /**
@@ -45,11 +36,19 @@ public class RtHttp {
     private volatile static RtHttp sRtHttp;
     private Context mContext;
     private Observable mObservable;
-    private HttpSubscriber mSubscriber;
+    private ApiSubscriber mSubscriber;
     private boolean mIsShowProgressDialog = true;
 
-    private RtHttp() {
+    private boolean mIsDialogCancelable = false;
 
+    private String mDialogMessage;
+
+    private RtHttp() {
+        init();
+    }
+
+    private void init() {
+        mDialogMessage = App.getAppContext().getString(R.string.loading);
     }
 
     public static RtHttp getInstance() {
@@ -70,95 +69,45 @@ public class RtHttp {
     }
 
     public RtHttp isShowProgressDialog(boolean isShowProgressDialog) {
-        this.mIsShowProgressDialog = isShowProgressDialog;
+        mIsShowProgressDialog = isShowProgressDialog;
         return sRtHttp;
     }
 
     public RtHttp setObservable(Observable observable) {
-        this.mObservable = observable;
+//        mObservable = observable;
+        mObservable = observable
+                .compose(TransformUtils.defaultSchedulers())
+                .map(new ResultMap());
+        return sRtHttp;
+    }
+
+    public RtHttp setDialogMessage(String dialogMessage) {
+        mDialogMessage = dialogMessage;
+        return sRtHttp;
+    }
+
+    public RtHttp setDialogCancelable(boolean dialogCancelable) {
+        mIsDialogCancelable = dialogCancelable;
         return sRtHttp;
     }
 
     public RtHttp subscriber(ApiSubscriber subscriber) {
-        subscriber.setmCtx(mContext);  //给subscriber设置Context，用于显示网络加载动画
-        subscriber.setShowWaitDialog(mIsShowProgressDialog); //控制是否显示动画
-        mObservable.subscribe(subscriber); //RxJava 方法
+        mSubscriber = subscriber;
+        initSubscriber(subscriber);
+        mObservable.subscribe(subscriber);
         return sRtHttp;
     }
 
-    //取消请求
-    public void cancelRequest() {
-        mSubscriber.cancelRequest();
+    private void initSubscriber(ApiSubscriber subscriber) {
+        //给subscriber设置Context，用于显示网络加载动画
+        subscriber.setContext(mContext);
+        subscriber.setShowProgressDialog(mIsShowProgressDialog);
+        subscriber.setDialogCancelable(mIsDialogCancelable);
+        subscriber.setDialogMessage(mDialogMessage);
     }
 
-    /**
-     * 使用Retrofit.Builder和OkHttpClient.Builder构建NetworkApi
-     */
-    public static class NetworkApiBuilder {
-        private String baseUrl;  //根地址
-        private boolean isAddSession; //是否添加sessionid
-        private HashMap<String, String> addDynamicParameterMap; //url动态参数
-        private boolean isAddParameter; //url是否添加固定参数
-        private Retrofit.Builder rtBuilder;
-        private OkHttpClient.Builder okBuild;
-        private Converter.Factory convertFactory;
-
-        public NetworkApiBuilder setConvertFactory(Converter.Factory convertFactory) {
-            this.convertFactory = convertFactory;
-            return this;
-        }
-
-        public NetworkApiBuilder setBaseUrl(String baseUrl) {
-            this.baseUrl = baseUrl;
-            return this;
-        }
-
-        public NetworkApiBuilder addParameter() {
-            isAddParameter = true;
-            return this;
-        }
-
-
-        public NetworkApiBuilder addSession() {
-            isAddSession = true;
-            return this;
-        }
-
-        public NetworkApiBuilder addDynamicParameter(HashMap map) {
-            addDynamicParameterMap = map;
-            return this;
-        }
-
-
-        public NetworkApi build() {
-            rtBuilder = new Retrofit.Builder();
-            okBuild = new OkHttpClient().newBuilder();
-            rtBuilder.baseUrl(baseUrl);
-
-            if (isAddSession) {
-                okBuild.addInterceptor(new HeaderInterceptor());
-            }
-            if (isAddParameter) {
-                okBuild.addInterceptor(new ParameterInterceptor());
-            }
-            if (addDynamicParameterMap != null) {
-                okBuild.addInterceptor(new DynamicParameterInterceptor(addDynamicParameterMap));
-            }
-            //warning:must in the last intercepter to log the network;
-            if (BuildConfig.DEBUG) { //改成自己的显示log判断逻辑
-                HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-                logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-                okBuild.addInterceptor(logging);
-            }
-            if (convertFactory != null) {
-                rtBuilder.addConverterFactory(convertFactory);
-            } else {
-                rtBuilder.addConverterFactory(GsonConverterFactory.create());
-            }
-            rtBuilder.addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                    .client(okBuild.build());
-            return rtBuilder.build().create(NetworkApi.class);
-        }
+    public void cancelRequest() {
+        mSubscriber.cancelRequest();
     }
 
 }

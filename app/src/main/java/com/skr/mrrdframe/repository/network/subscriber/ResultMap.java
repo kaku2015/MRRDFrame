@@ -16,7 +16,7 @@
  */
 package com.skr.mrrdframe.repository.network.subscriber;
 
-import com.skr.mrrdframe.repository.network.entity.ResultModel;
+import com.skr.mrrdframe.repository.network.entity.ResultInfo;
 
 import rx.functions.Func1;
 
@@ -24,15 +24,15 @@ import rx.functions.Func1;
  * @author 咖枯
  * @since 2016/12/4
  */
-public class ResultMap<T> implements Func1<ResultModel<T>, T> {
+public class ResultMap<T> implements Func1<ResultInfo<T>, T> {
 
 
     @Override
-    public T call(ResultModel<T> httpResult) {
+    public T call(ResultInfo<T> httpResult) {
         if ("200".equals(httpResult.getStatus())) {
             return httpResult.getData();
         } else {
-            throw new RuntimeException("请求失败(code=" + httpResult.getStatus() + ",message=" + httpResult.getMessage() + ")");
+            throw new RuntimeException("请求失败(code=" + httpResult.getCode() + ",message=" + httpResult.getMessage() + ")");
         }
     }
 }

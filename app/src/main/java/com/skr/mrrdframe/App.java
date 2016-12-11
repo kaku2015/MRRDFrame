@@ -19,7 +19,7 @@ import com.squareup.leakcanary.RefWatcher;
  * @since 2016/11/18
  */
 public class App extends Application {
-
+    private static final String LOG_TAG = "App";
     public static Context getAppContext() {
         return sAppContext;
     }
@@ -72,37 +72,37 @@ public class App extends Application {
         this.registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-                KLog.v("=========", activity + "  onActivityCreated");
+                KLog.v(LOG_TAG, activity.getComponentName() + "  onActivityCreated");
             }
 
             @Override
             public void onActivityStarted(Activity activity) {
-                KLog.v("=========", activity + "  onActivityStarted");
+                KLog.v(LOG_TAG, activity.getComponentName() + "  onActivityStarted");
             }
 
             @Override
             public void onActivityResumed(Activity activity) {
-                KLog.v("=========", activity + "  onActivityResumed");
+                KLog.v(LOG_TAG, activity.getComponentName() + "  onActivityResumed");
             }
 
             @Override
             public void onActivityPaused(Activity activity) {
-                KLog.v("=========", activity + "  onActivityPaused");
+                KLog.v(LOG_TAG, activity.getComponentName() + "  onActivityPaused");
             }
 
             @Override
             public void onActivityStopped(Activity activity) {
-                KLog.v("=========", activity + "  onActivityStopped");
+                KLog.v(LOG_TAG, activity.getComponentName() + "  onActivityStopped");
             }
 
             @Override
             public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-                KLog.v("=========", activity + "  onActivitySaveInstanceState");
+                KLog.v(LOG_TAG, activity.getComponentName() + "  onActivitySaveInstanceState");
             }
 
             @Override
             public void onActivityDestroyed(Activity activity) {
-                KLog.v("=========", activity + "  onActivityDestroyed");
+                KLog.v(LOG_TAG, activity.getComponentName() + "  onActivityDestroyed");
             }
         });
     }

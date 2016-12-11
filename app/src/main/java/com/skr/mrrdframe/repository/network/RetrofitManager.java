@@ -1,76 +1,95 @@
-/*
- * Copyright (c) 2016 咖枯 <kaku201313@163.com>
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
 package com.skr.mrrdframe.repository.network;
 
-import com.skr.mrrdframe.BuildConfig;
-import com.skr.mrrdframe.repository.network.service.HttpService;
+import android.util.SparseArray;
 
+import com.skr.mrrdframe.App;
+import com.skr.mrrdframe.BuildConfig;
+import com.skr.mrrdframe.repository.network.interceptor.LoggingInterceptor;
+
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Cache;
 import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * @author 咖枯
- * @since 2016/12/4
+ * @author hyw
+ * @since 2016/12/9
  */
 public class RetrofitManager {
-    public static final String url = "http://www.kuaidi100.com/";
-    private static final int TIMEOUT = 15;
-    private HttpService httpService;
-    private volatile static RetrofitManager singleton;
+    private HttpApi mHttpApi;
 
-    private RetrofitManager() {
-        //OkHttp初始化
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(TIMEOUT, TimeUnit.SECONDS);
-
-        //debug模式打印网络请求日志
-        if (BuildConfig.DEBUG) {
-            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-            builder.addInterceptor(logging);
-        }
-
-        //Retrofit初始化
-        Retrofit retrofit = new Retrofit.Builder()
-                .client(builder.build())
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .baseUrl(url)
-                .build();
-        httpService = retrofit.create(HttpService.class);
+    public static HttpApi getHttpApi(int hostType) {
+        return getInstance(hostType).mHttpApi;
     }
 
-    public static RetrofitManager getInstance() {
-        if (singleton == null) {
+    public static HttpApi getHttpApi() {
+        return getInstance(HostType.RELEASE).mHttpApi;
+    }
+
+    private static volatile OkHttpClient sOkHttpClient;
+
+    private static SparseArray<RetrofitManager> sRetrofitManager = new SparseArray<>(HostType.TYPE_COUNT);
+    private boolean mIsUseCache;
+
+    /**
+     * @param hostType
+     */
+    public static RetrofitManager getInstance(int hostType) {
+        RetrofitManager retrofitManager = sRetrofitManager.get(hostType);
+        if (retrofitManager == null) {
+            retrofitManager = new RetrofitManager(hostType);
+            sRetrofitManager.put(hostType, retrofitManager);
+            return retrofitManager;
+        }
+        return retrofitManager;
+    }
+
+    public RetrofitManager(@HostType.Checker int hostType) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(ApiConstants.getHost(hostType))
+                .client(getOkHttpClient())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build();
+        mHttpApi = retrofit.create(HttpApi.class);
+
+    }
+
+    private OkHttpClient getOkHttpClient() {
+        if (sOkHttpClient == null) {
             synchronized (RetrofitManager.class) {
-                if (singleton == null) {
-                    singleton = new RetrofitManager();
+                if (sOkHttpClient == null) {
+                    createOkHttpClient();
                 }
             }
         }
-        return singleton;
+        return sOkHttpClient;
     }
 
-    public static HttpService getService() {
-        return getInstance().httpService;
+    private void createOkHttpClient() {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS);
+
+        //debug模式打印网络请求日志
+        if (BuildConfig.DEBUG) {
+//                        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+//                        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+            builder.addInterceptor(new LoggingInterceptor());
+        }
+
+        if (mIsUseCache) {
+            Cache cache = new Cache(new File(App.getAppContext().getCacheDir(), "HttpCache"),
+                    1024 * 1024 * 100);
+            builder.cache(cache);
+        }
+
+        sOkHttpClient = builder.build();
     }
+
 }

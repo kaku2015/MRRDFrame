@@ -66,7 +66,7 @@ public abstract class BaseApi {
 //                observable = observable.map(new StringToJSONObjectFun1());
 //            }
 //            if(apiException){
-//                observable = observable.flatMap(new ApiThrowExcepitionFun1());
+//                observable = observable.flatMap(new ResultFlatMap());
 //            }
 //            if(toJSONJbject){
 //                observable = observable.map(new ObjectToJSONObjectFun1());

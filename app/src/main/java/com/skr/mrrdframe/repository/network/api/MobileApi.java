@@ -1,7 +1,7 @@
 package com.skr.mrrdframe.repository.network.api;
 
-import com.skr.mrrdframe.repository.network.RtHttp;
-import com.skr.mrrdframe.repository.network.service.NetworkApi;
+import com.skr.mrrdframe.repository.network.HttpApi;
+import com.skr.mrrdframe.repository.network.HttpApiBuilder;
 
 import rx.Observable;
 
@@ -11,17 +11,17 @@ import rx.Observable;
  */
 public class MobileApi extends BaseApi{
 
-    public static NetworkApi networkApi;
+    public static HttpApi sHttpApi;
     public static Observable obserable;
 
-    public static NetworkApi getNetworkApi() { //使用NetworkApiBuilder创建networkApi
-        if(networkApi==null ){
-            networkApi = new RtHttp.NetworkApiBuilder()
+    public static HttpApi getHttpApi() { //使用NetworkApiBuilder创建networkApi
+        if(sHttpApi ==null ){
+            sHttpApi = new HttpApiBuilder()
                     .addSession()               //添加sessionId
                     .addParameter()             //添加固定参数
                     .build();
         }
-        return networkApi;
+        return sHttpApi;
     }
 
     public static Observable getObserable(Observable observable) {
@@ -33,6 +33,6 @@ public class MobileApi extends BaseApi{
 
 /*    public static   Observable response(HashMap map, int protocolId) {
         RequestBody body = toBody(map);
-        return getObserable(getNetworkApi().response(protocolId, body));
+        return getObserable(getHttpApi().response(protocolId, body));
     }*/
 }

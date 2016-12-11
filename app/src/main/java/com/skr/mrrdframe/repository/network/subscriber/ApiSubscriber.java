@@ -22,7 +22,7 @@ import android.text.TextUtils;
 
 import com.google.gson.JsonParseException;
 import com.skr.mrrdframe.R;
-import com.skr.mrrdframe.repository.exception.ApiException;
+import com.skr.mrrdframe.repository.network.exception.ApiException;
 import com.skr.mrrdframe.utils.ToastUtil;
 import com.socks.library.KLog;
 
@@ -42,46 +42,85 @@ import rx.Subscriber;
  */
 public abstract class ApiSubscriber<T> extends Subscriber<T> {
     private static final String LOG_TAG = "ApiSubscriber";
-    private Context mCtx;
-    private ProgressDialog dialog;
-    private boolean isShowWaitDialog;
 
-    public void setShowWaitDialog(boolean showWaitDialog) {
-        isShowWaitDialog = showWaitDialog;
+    private Context mContext;
+
+    public void setContext(Context mCtx) {
+        this.mContext = mCtx;
+    }
+
+    private ProgressDialog mProgressDialog;
+
+    public void setProgressDialog(ProgressDialog progressDialog) {
+        this.mProgressDialog = progressDialog;
+    }
+
+    private boolean mIsShowProgressDialog;
+
+    public void setShowProgressDialog(boolean showProgressDialog) {
+        mIsShowProgressDialog = showProgressDialog;
+    }
+
+    private boolean mIsDialogCancelable;
+
+    public void setDialogCancelable(boolean dialogCancelable) {
+        mIsDialogCancelable = dialogCancelable;
+    }
+
+    private String mDialogMessage;
+
+    public void setDialogMessage(String dialogMessage) {
+        mDialogMessage = dialogMessage;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if (isShowWaitDialog) {
-            showWaitDialog();
+        if (mIsShowProgressDialog) {
+            showProgressDialog();
         }
     }
 
-    public void setmCtx(Context mCtx) {
-        this.mCtx = mCtx;
+    private void showProgressDialog() {
+        if (mProgressDialog == null) {
+            initProgressDialog();
+        }
+        mProgressDialog.show();
+    }
+
+    private void initProgressDialog() {
+        if (mProgressDialog == null && mContext != null) {
+            mProgressDialog = new ProgressDialog(mContext);
+            mProgressDialog.setMessage(mDialogMessage);
+            mProgressDialog.setCancelable(mIsDialogCancelable);
+        }
+    }
+
+    public void cancelRequest() {
+        if (!isUnsubscribed()) {
+            unsubscribe();
+        }
     }
 
     @Override
     public void onCompleted() {
-        if (isShowWaitDialog) {
-            dismissDialog();
+        dismissDialog();
+    }
+
+    private void dismissDialog() {
+        if (mIsShowProgressDialog && mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
         }
     }
 
-    /**
-     * 对 onError进行处理
-     *
-     * @param e
-     */
     @Override
     public void onError(Throwable e) {
-        if (isShowWaitDialog) {
-            dismissDialog();
-        }
-
+        dismissDialog();
         KLog.e(LOG_TAG, e.getMessage());
+        showError(e);
+    }
 
+    private void showError(Throwable e) {
         if (e instanceof HttpException) {
             HttpException httpException = (HttpException) e;
             if (TextUtils.isEmpty(httpException.getMessage())) {
@@ -125,49 +164,10 @@ public abstract class ApiSubscriber<T> extends Subscriber<T> {
                 if(TextUtils.isEmpty(msg)){
                     ToastUtil.showShortToast(R.string.imi_toast_common_net_error);
                 }else {
-                    ToastUtil.showShortToast(mCtx, msg);
+                    ToastUtil.showShortToast(mContext, msg);
                 }
         }*/
 
-    }
-
-    private void dismissDialog() {
-        if (dialog != null && dialog.isShowing()) {
-            dialog.dismiss();
-        }
-    }
-
-    private void showWaitDialog() {
-        if (dialog == null) {
-            initProgressDialog();
-        }
-
-        dialog.show();
-    }
-
-    private void initProgressDialog() {
-        Context context = this.mCtx;
-        if (dialog == null && context != null) {
-            dialog = new ProgressDialog(context);
-            dialog.setMessage("加载中……");
-            dialog.setCancelable(false);
-        }
-    }
-
-    private void initProgressDialog(String message) {
-        Context context = this.mCtx;
-        if (dialog == null && context != null) {
-            dialog = new ProgressDialog(context);
-            dialog.setMessage(message);
-            dialog.setCancelable(false);
-        }
-    }
-
-    //取消请求
-    public void cancelRequest() {
-        if (!isUnsubscribed()) {
-            unsubscribe();
-        }
     }
 
 }
