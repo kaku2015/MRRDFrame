@@ -4,6 +4,7 @@ import android.util.SparseArray;
 
 import com.skr.mrrdframe.App;
 import com.skr.mrrdframe.BuildConfig;
+import com.skr.mrrdframe.repository.network.api.HttpApi;
 import com.skr.mrrdframe.repository.network.interceptor.LoggingInterceptor;
 
 import java.io.File;
@@ -32,17 +33,17 @@ public class RetrofitManager {
 
     private static volatile OkHttpClient sOkHttpClient;
 
-    private static SparseArray<RetrofitManager> sRetrofitManager = new SparseArray<>(HostType.TYPE_COUNT);
+    private static SparseArray<RetrofitManager> mRetrofitManager = new SparseArray<>(HostType.TYPE_COUNT);
     private boolean mIsUseCache;
 
     /**
      * @param hostType
      */
     public static RetrofitManager getInstance(int hostType) {
-        RetrofitManager retrofitManager = sRetrofitManager.get(hostType);
+        RetrofitManager retrofitManager = mRetrofitManager.get(hostType);
         if (retrofitManager == null) {
             retrofitManager = new RetrofitManager(hostType);
-            sRetrofitManager.put(hostType, retrofitManager);
+            mRetrofitManager.put(hostType, retrofitManager);
             return retrofitManager;
         }
         return retrofitManager;
@@ -72,6 +73,7 @@ public class RetrofitManager {
 
     private void createOkHttpClient() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
+
         builder.connectTimeout(10, TimeUnit.SECONDS)
                 .readTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(10, TimeUnit.SECONDS);

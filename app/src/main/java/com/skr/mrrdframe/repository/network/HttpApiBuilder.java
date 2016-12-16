@@ -17,6 +17,7 @@
 package com.skr.mrrdframe.repository.network;
 
 import com.skr.mrrdframe.BuildConfig;
+import com.skr.mrrdframe.repository.network.api.HttpApi;
 import com.skr.mrrdframe.repository.network.interceptor.DynamicParameterInterceptor;
 import com.skr.mrrdframe.repository.network.interceptor.HeaderInterceptor;
 import com.skr.mrrdframe.repository.network.interceptor.ParameterInterceptor;

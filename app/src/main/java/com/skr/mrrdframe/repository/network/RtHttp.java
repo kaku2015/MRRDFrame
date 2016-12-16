@@ -43,12 +43,19 @@ public class RtHttp {
 
     private String mDialogMessage;
 
+    public void setTransformer(Observable.Transformer transformer) {
+        mTransformer = transformer;
+    }
+
+    private Observable.Transformer mTransformer;
+
     private RtHttp() {
         init();
     }
 
     private void init() {
         mDialogMessage = App.getAppContext().getString(R.string.loading);
+        mTransformer = TransformUtils.defaultSchedulers();
     }
 
     public static RtHttp getInstance() {
@@ -76,7 +83,7 @@ public class RtHttp {
     public RtHttp setObservable(Observable observable) {
 //        mObservable = observable;
         mObservable = observable
-                .compose(TransformUtils.defaultSchedulers())
+                .compose(mTransformer)
                 .map(new ResultMap());
         return sRtHttp;
     }
