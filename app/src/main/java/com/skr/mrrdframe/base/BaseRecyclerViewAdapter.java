@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,7 +21,7 @@ public class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerVie
     public static final int TYPE_FOOTER = 1;
     protected int mLastPosition = -1;
     protected boolean mIsShowFooter;
-    protected List<T> mData;
+    protected List<T> mData = new ArrayList<>();
     protected OnItemClickListener mOnItemClickListener;
 
     public interface OnItemClickListener {
@@ -104,6 +105,7 @@ public class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerVie
 
     public void setData(List<T> items) {
         mData = items;
+        notifyDataSetChanged();
     }
 
     public void showFooter() {

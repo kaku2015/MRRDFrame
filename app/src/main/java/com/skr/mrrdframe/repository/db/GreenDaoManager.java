@@ -14,8 +14,10 @@ import org.greenrobot.greendao.query.QueryBuilder;
  * @since 2016/11/23
  */
 public class GreenDaoManager {
+    private static final String LOG_TAG = "GreenDaoManager";
     private static GreenDaoManager sGreenDaoManager;
     private UploadFileInfoDao mUploadFileInfoDao;
+    private DaoSession mDaoSession;
 
     private GreenDaoManager() {
         // 通过 DaoMaster 的内部类 DevOpenHelper，你可以得到一个便利的 SQLiteOpenHelper 对象。
@@ -25,8 +27,8 @@ public class GreenDaoManager {
         DaoMaster.DevOpenHelper devOpenHelper = new DaoMaster.DevOpenHelper(App.getAppContext(), DBConstants.DB_NAME, null);
         // 注意：该数据库连接属于 DaoMaster，所以多个 Session 指的是相同的数据库连接。
         DaoMaster mDaoMaster = new DaoMaster(devOpenHelper.getWritableDatabase());
-        DaoSession daoSession = mDaoMaster.newSession();
-        mUploadFileInfoDao = daoSession.getUploadFileInfoDao();
+        mDaoSession = mDaoMaster.newSession();
+        mUploadFileInfoDao = mDaoSession.getUploadFileInfoDao();
         // 在 QueryBuilder 类中内置两个 Flag 用于方便输出执行的 SQL 语句与传递参数的值
         QueryBuilder.LOG_SQL = BuildConfig.DEBUG;
         QueryBuilder.LOG_VALUES = BuildConfig.DEBUG;

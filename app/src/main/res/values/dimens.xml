@@ -6,5 +6,9 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <dimen name="elevation_margin">6dp</dimen>
     <dimen name="item_margin">8dp</dimen>
+    <dimen name="parent_margin">10dp</dimen>
+    <dimen name="button_margin">15dp</dimen>
+    <dimen name="widget_margin">20dp</dimen>
 </resources>

@@ -5,6 +5,9 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="light_gray">#EEEEEE</color>
+    <color name="gray_divider">#DCDCDC</color>
+
+    <color name="gray">#B2B1B0</color>
 
     <color name="container_background">#EBEBEB</color>
     <color name="item_background">#FAFAFA</color>

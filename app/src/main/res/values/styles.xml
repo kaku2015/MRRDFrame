@@ -1,19 +1,46 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
-        <item name="android:listDivider">@drawable/bg_list_divider</item>
-    </style>
-    <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+
+        <item name="android:screenOrientation">portrait</item>
+    </style>
+
+
+    <style name="AppTheme.Trans">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <style name="SplashTheme" parent="AppTheme">
+        <item name="android:windowBackground">@mipmap/ic_launcher</item>
+        <item name="android:windowFullscreen">true</item>
     </style>
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+    <style name="ButtonTheme" parent="Theme.AppCompat">
+        <!--点击颜色-->
+        <item name="colorControlHighlight">@color/alpha_60_white</item>
+        <!--背景颜色-->
+        <item name="colorButtonNormal">@color/colorAccent</item>
+    </style>
+
+    <style name="empty_tv">
+        <item name="android:id">@android:id/empty</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:textSize">@dimen/big_medium</item>
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:visibility">gone</item>
+    </style>
 
 </resources>
