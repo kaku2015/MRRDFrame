@@ -5,14 +5,21 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.text.TextUtils;
 
+import com.blankj.utilcode.utils.AppUtils;
 import com.skr.mrrdframe.di.component.ApplicationComponent;
 import com.skr.mrrdframe.di.component.DaggerApplicationComponent;
 import com.skr.mrrdframe.di.module.ApplicationModule;
-import com.skr.mrrdframe.repository.db.GreenDaoManager;
+import com.skr.mrrdframe.repository.db.DBManager;
 import com.socks.library.KLog;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
+import com.tencent.bugly.crashreport.CrashReport;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * @author hyw
@@ -47,18 +54,63 @@ public class App extends Application {
         sAppContext = this;
         initActivityLifecycleLogs();
         initStrictMode();
-        KLog.init(BuildConfig.LOG_DEBUG, "file_upload");
-        GreenDaoManager.init();
+        KLog.init(BuildConfig.LOG_DEBUG, AppUtils.getAppPackageName(this));
+        DBManager.init();
         initApplicationComponent();
+        initBugly();
     }
 
+    private void initBugly() {
+        if (!BuildConfig.DEBUG) {
+            // 如果App使用了多进程且各个进程都会初始化Bugly（例如在Application类onCreate()中初始化Bugly），那么每个进程下的Bugly都会进行数据上报，造成不必要的资源浪费。因此，为了节省流量、内存等资源，建议初始化的时候对上报进程进行控制，只在主进程下上报数据：判断是否是主进程（通过进程名是否为包名来判断），并在初始化Bugly时增加一个上报进程的策略配置。
+            Context context = getApplicationContext();
+            // 获取当前包名
+            String packageName = context.getPackageName();
+            // 获取当前进程名
+            String processName = getProcessName(android.os.Process.myPid());
+            // 设置是否为上报进程
+            CrashReport.UserStrategy strategy = new CrashReport.UserStrategy(context);
+            strategy.setUploadProcess(processName == null || processName.equals(packageName));
+            // 初始化Bugly  // TODO:
+            CrashReport.initCrashReport(getApplicationContext(), "注册时申请的APPID", BuildConfig.DEBUG);
+        }
+    }
+
+    /**
+     * 获取进程号对应的进程名
+     *
+     * @param pid 进程号
+     * @return 进程名
+     */
+    private static String getProcessName(int pid) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader("/proc/" + pid + "/cmdline"));
+            String processName = reader.readLine();
+            if (!TextUtils.isEmpty(processName)) {
+                processName = processName.trim();
+            }
+            return processName;
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        }
+        return null;
+    }
 
     private void initLeakCanary() {
-/*        if (BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             refWatcher = LeakCanary.install(this);
-        } else {*/
+        } else {
             refWatcher = installLeakCanary();
-//        }
+        }
     }
 
     /**

@@ -11,6 +11,7 @@ import android.view.MenuItem;
 
 import com.skr.mrrdframe.App;
 import com.skr.mrrdframe.R;
+import com.skr.mrrdframe.common.Constants;
 import com.skr.mrrdframe.di.component.ActivityComponent;
 import com.skr.mrrdframe.di.component.DaggerActivityComponent;
 import com.skr.mrrdframe.di.module.ActivityModule;
@@ -81,7 +82,6 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
             mProgressDialog.dismiss();
         }
     }
-
 
     private void initProgressDialog() {
         mProgressDialog = new ProgressDialog(this);
@@ -169,7 +169,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
                 }
                 break;
             case R.id.settings:
-                // do something
+                // goToActivity(SettingsActivity.class);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -177,6 +177,12 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
 
     protected void goToActivity(Class targetActivity) {
         Intent intent = new Intent(this, targetActivity);
+        startActivity(intent);
+    }
+
+    protected void goToActivity(Class targetActivity, Bundle bundle) {
+        Intent intent = new Intent(this, targetActivity);
+        intent.putExtra(Constants.BUNDLE, bundle);
         startActivity(intent);
     }
 }

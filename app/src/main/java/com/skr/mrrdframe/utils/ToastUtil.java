@@ -94,7 +94,7 @@ public class ToastUtil {
             sToast = new Toast(appContext);
             sToast.setDuration(duration);
             int density = (int) appContext.getResources().getDisplayMetrics().density;
-            sToast.setGravity(Gravity.CENTER, 0, 115 * density);
+            sToast.setGravity(Gravity.BOTTOM, 0, 80 * density);
             sToast.setView(view);
         } else {
             sToast.setView(view);

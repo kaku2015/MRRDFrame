@@ -73,7 +73,7 @@
 }
 
 #bean
-#-keep class ?.** { *; }
+-keep class **.entity.** { *; }
 
 #jar文件
 ##不混淆第三方jar包中的类 保留第三方jar包的所有类及其成员和方法
